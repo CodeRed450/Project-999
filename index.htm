@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Project 999</title>
+    <style>
+        body { background: #0b0e14; color: #f0f6fc; font-family: sans-serif; text-align: center; padding: 20px 20px 80px; }
+        h1 { color: #d4af37; text-shadow: 0 0 15px rgba(212,175,55,0.5); font-size: 2.5rem; margin: 0; }
+        .red { color: #ff3333; font-size: 1.2rem; font-weight: bold; margin-bottom: 25px; text-shadow: 0 0 10px #ff0000; animation: p 2s infinite alternate; }
+        @keyframes p { from { text-shadow: 0 0 8px #ff0000; } to { text-shadow: 0 0 20px #ff0000, 0 0 30px #ff0000; } }
+        .btn { background: linear-gradient(45deg, #bf953f, #fcf6ba, #b38728, #fbf5b7); color: #0b0e14; border: 2px solid #d4af37; padding: 18px 60px; font-size: 1.5rem; font-weight: bold; border-radius: 50px; cursor: pointer; margin-bottom: 30px; box-shadow: 0 0 20px rgba(212,175,55,0.6); transition: 0.3s; }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 0 35px rgba(212,175,55,0.9); }
+        .ps { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; font-size: 1.8rem; color: #d4af37; text-shadow: 0 0 8px rgba(212,175,55,0.6); }
+        .ps span { background: #161b22; border: 1px solid #30363d; padding: 5px 15px; border-radius: 8px; font-weight: bold; }
+        select { background: #161b22; color: #fff; border: 2px solid #30363d; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; margin: 30px auto; }
+        .card { background: #161b22; border: 2px solid #30363d; border-radius: 16px; overflow: hidden; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; }
+        .card:hover { transform: translateY(-4px); border-color: #ff3333; box-shadow: 0 0 20px rgba(255,51,51,0.5); }
+        .card img { width: 100%; height: 140px; object-fit: cover; border-bottom: 2px solid #30363d; }
+        .info { padding: 15px; text-align: right; flex-grow: 1; }
+        .title { font-weight: bold; font-size: 1.2rem; color: #fff; margin-bottom: 5px; }
+        .desc { color: #8b949e; font-size: 0.85rem; line-height: 1.4; }
+        .bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #161b22; border: 2px solid #30363d; padding: 12px 35px; border-radius: 50px; font-weight: bold; z-index: 999; }
+    </style>
+</head>
+<body>
+
+    <h1>Project 999</h1>
+    <div class="red">By Code_Red</div>
+    
+    <button class="btn" onclick="inject('goldhen', 'GoldHEN', document.getElementById('fw').value)">⚡ تفعيل الجيلبريك | Enable Jailbreak ⚡</button>
+
+    <div class="ps"><span>▢</span><span>△</span><span>◯</span><span>✕</span></div>
+
+    <select id="fw" onchange="loadMenu()">
+        <option value="13.52">Firmware 13.52</option>
+        <option value="13.00" selected>Firmware 13.00</option>
+        <option value="11.00">Firmware 11.00</option>
+        <option value="9.00">Firmware 9.00</option>
+        <option value="7.55">Firmware 7.55</option>
+        <option value="7.02">Firmware 7.02</option>
+        <option value="6.72">Firmware 6.72</option>
+        <option value="5.05">Firmware 5.05</option>
+    </select>
+
+    <div class="grid" id="box"></div>
+    <div id="status" class="bar">الحالة: جاهز بانتظار اختيار الـ Payload...</div>
+
+    <script>
+        const list = [
+            { id: 'app2usb', t: 'App2USB', d: 'نقل الألعاب المثبتة وتوفير مساحة الهارد الداخلي عبر تخزينها في مساحة USB خارجية.' },
+            { id: 'app-dumper', t: 'App Dumper', d: 'سحب وعمل نسخة احتياطية من ألعابك المثبتة وتحويلها لملفات PKG.' },
+            { id: 'backup', t: 'Database Backup', d: 'أخذ نسخة احتياطية فورية لقواعد بيانات ألعابك لحمايتها من التلف والضياع.' },
+            { id: 'disable-aslr', t: 'Disable ASLR', d: 'تعطيل خاصية ميكانيكية حماية الذاكرة العشوائية لتسهيل عمل شفرات وتعديلات الألعاب.' },
+            { id: 'disable-updates', t: 'Disable Updates', d: 'حظر خوادم سوني نهائياً لحماية جهازك من التحديث التلقائي بالخطأ.' },
+            { id: 'enable-browser', t: 'Enable Browser', d: 'تفعيل متصفح الإنترنت بشكل دائم على الحسابات التي لم تسجل دخول للـ PSN.' },
+            { id: 'enable-updates', t: 'Enable Updates', d: 'إعادة تفعيل خوادم تحديث سوني مجدداً في حال كنت ترغب في تحديث النظام يدوياً.' },
+            { id: 'exit-idu', t: 'Exit IDU', d: 'الخروج من وضع المنصات التجريبية أو حزم المتاجر (IDU Mode) والعودة للنظام الطبيعي.' },
+            { id: 'fan-threshold', t: 'Fan Threshold', d: 'التحكم اليدوي في سرعة مروحة التبريد الداخلية لحماية معالج الـ PS4 من الحرارة.' },
+            { id: 'ftp', t: 'FTP Server', d: 'فتح اتصال لاسلكي لتعديل ونقل ملفات المنصة والتخزينات عبر شبكة الإنترنت المحلية.' },
+            { id: 'history-blocker', t: 'History Blocker', d: 'تعطيل الحفظ التلقائي لآخر صفحة تمت زيارتها في المتصفح لمنع تجمد التطبيق.' },
+            { id: 'kernel-clock', t: 'Kernel Clock', d: 'تعديل وإصلاح توقيت الساعة الداخلية العميقة للنظام بدون الحاجة للاتصال بالإنترنت.' },
+            { id: 'kernel-dumper', t: 'Kernel Dumper', d: 'سحب كود الكيرنل الداخلي للنظام ومشاركته من أجل أغراض الفحص البرمجي والتطوير.' },
+            { id: 'linux', t: 'Linux (Default)', d: 'تحميل وإقلاع نظام تشغيل لينكس الكامل وتشغيل الكمبيوتر الشخصي على جهاز الـ PS4.' },
+            { id: 'linux-2gb', t: 'Linux 2GB', d: 'تشغيل وإقلاع نظام لينكس مع حجز مساحة تخصيص مخصصة بـ 2 جيجابايت لكرت الشاشة.' },
+            { id: 'linux-3gb', t: 'Linux 3GB', d: 'تشغيل وإقلاع نظام لينكس مع حجز مساحة تخصيص متطورة بـ 3 جيجابايت لكرت الشاشة.' },
+            { id: 'linux-4gb', t: 'Linux 4GB', d: 'تشغيل وإقلاع نظام لينكس بأقصى أداء مع حجز 4 جيجابايت كاملة لذاكرة الشاشة VRAM.' },
+            { id: 'module-dumper', t: 'Module Dumper', d: 'سحب وحفظ ملفات الموديول البرمجية (Modules) الخاصة بملفات تشغيل النظام العميقة.' },
+            { id: 'permanent-uart', t: 'Permanent UART', d: 'تفعيل منافذ تصحيح الأخطاء الصلبة (UART) بشكل دائم لفحص اللوحة الأم للبلايستيشن.' },
+            { id: 'ps4-debug_v1.1.16', t: 'PS4 Debug v1.1.16', d: 'تنشيط بروتوكول المطورين لربط برامج الغش وتعديل الذاكرة العشوائية للألعاب.' },
+            { id: 'ps4-sflash0-dumper', t: 'PS4 Sflash0 Dumper', d: 'عمل نسخة احتياطية كاملة لذاكرة الفلاش الداخلية (sflash0) الخاصة بجهازك لتأمين الحماية.' },
+            { id: 'pup-decrypt', t: 'PUP Decrypt', d: 'فك تشفير ملفات التحديث الرسمية الخاصة بشركة سوني (ملفات .PUP) واستخراج محتواها.' },
+            { id: 'restore', t: 'Database Restore', d: 'استعادة النسخة الاحتياطية السابقة لقواعد البيانات فوراً لإصلاح مشاكل اختفاء الألعاب.' },
+            { id: 'rif-renamer', t: 'RIF Renamer', d: 'تعديل وإعادة تسمية ملفات التراخيص (RIF) للألعاب لتحويل الألعاب التجريبية لألعاب كاملة.' },
+            { id: 'todex', t: 'ToDex / ToDev', d: 'تحويل بيئة النظام العامة لوضع المطورين وفتح إعدادات الـ Debug settings الخفية.' },
+            { id: 'webrte', t: 'WebRTE Trainer', d: 'محرك الغش الشهير لتنشيط شفرات الغش والتعديل على الألعاب عبر المتصفح.' }
+        ];
+
+        function loadMenu() {
+            const fw = document.getElementById('fw').value;
+            const box = document.getElementById('box');
+            box.innerHTML = '';
+            list.forEach(p => {
+                box.innerHTML += `
+                    <div class="card" onclick="inject('${p.id}', '${p.t}', '${fw}')">
+                        <img src="images/${p.id}.png" onerror="this.src='https://placehold.co{encodeURIComponent(p.t)}'">
+                        <div class="info"><div class="title">${p.t}</div><div class="desc">${p.d}</div></div>
+                    </div>`;
+            });
+        }
+
+        async function inject(id, name, fw) {
+            const bar = document.getElementById('status');
+            bar.style.borderColor = bar.style.color = "#ff3333";
+            bar.innerText = `جاري استدعاء ثغرة [${fw}] وحقن ملف ${name}...`;
+            try {
+                const res = await fetch(`payloads/${fw}/${id}.bin`);
+                if (!res.ok) throw new Error();
+                setTimeout(() => {
+                    bar.style.borderColor = bar.style.color = "#3fb950";
+                    bar.innerText = `تم تشغيل وتفعيل ${name} بنجاح على نظام ${fw}! ⚡`;
+                }, 1500);
+            } catch (e) {
+                bar.style.borderColor = bar.style.color = "#f85149";
+                bar.innerText = `خطأ: تأكد من وجود ملف في المسار: payloads/${fw}/${id}.bin`;
+            }
+        }
+        window.onload = loadMenu;
+    </script>
+</body>
+</html>
